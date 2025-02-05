@@ -101,7 +101,7 @@ const ChannelDetails = () => {
         {/* Modal for Show Details */}
         {selectedShow && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+            <div className="bg-black border-2 border-violet-500 p-6 rounded-lg shadow-lg max-w-lg w-full relative">
               <button
                 onClick={() => setSelectedShow(null)}
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-2xl"
@@ -111,7 +111,7 @@ const ChannelDetails = () => {
 
               <h2 className="text-2xl font-bold mb-4">{selectedShow.name}</h2>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto no-scrollbar">
                 {selectedShow.episodes.map((episode, index) => (
                   <div key={index} className="border-b pb-4">
                     <h3 className="text-lg font-semibold">
