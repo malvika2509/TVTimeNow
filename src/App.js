@@ -1,10 +1,16 @@
-import Home from "./components/Home";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ChannelDetails from "./components/ChannelDetails";
+import Home from "../src/components/Home";
 
 function App() {
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Home />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/channel/:channelName" element={<ChannelDetails />} />
+      </Routes>
+    </Router>
   );
 }
 

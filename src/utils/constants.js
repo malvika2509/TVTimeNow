@@ -1,1 +1,1 @@
-export default TVMAzeAPI = "https://api.tvmaze.com/schedule/full";
+export const TVMAzeAPI = "https://api.tvmaze.com/schedule/full";
