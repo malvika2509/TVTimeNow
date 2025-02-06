@@ -3,10 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { gemAPI_Key } from "../utils/constants";
 import Header from "./Header";
-import { gemAPI_Key } from "../utils/constants";
 
 // Initialize Google Generative AI
-const genAI = new GoogleGenerativeAI(gemAPI_Key); // Replace with your actual API key
+const genAI = new GoogleGenerativeAI(gemAPI_Key);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const SuggestedShowsPage = () => {
