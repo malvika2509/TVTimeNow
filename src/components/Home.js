@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ChannelsList from "./ChannelsList";
 import Header from "./Header";
 import { TVMAzeAPI } from "../utils/constants";
+import VideoBackground from "./VideoBackground";
 
 const Home = () => {
   const [channels, setChannels] = useState([]);
@@ -41,7 +42,6 @@ const Home = () => {
       .catch((error) => setError(error.message))
       .finally(() => setLoading(false));
   }, []);
-  console.log(types);
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -53,13 +53,19 @@ const Home = () => {
         <div className="text-center text-red-500">{error}</div>
       ) : (
         <>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-wide uppercase">
-            Welcome to <br />
-            TVTimesNow
-          </h2>
-          <p className="text-lg md:text-xl text-gray-400 mt-2 mb-8">
-            Your guide to what's on TV right now in the US.
-          </p>
+          <div className="flex justify-between m-24">
+            <div className="w-full md:w-1/2">
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-wide uppercase">
+                Welcome to <br />
+                TVTimesNow
+              </h2>
+              <p className="text-lg md:text-xl text-gray-400 mt-2 mb-8">
+                Your guide to what's on TV right now in the US.
+              </p>
+            </div>
+            <VideoBackground />
+          </div>
+
           <ChannelsList channels={channels} />
         </>
       )}
