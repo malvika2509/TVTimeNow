@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "./Header";
-
-const TVMAZE_API_URL = "https://api.tvmaze.com/schedule/full";
+import { TVMAzeAPI } from "../utils/constants";
+import { X } from "lucide-react";
 
 const ChannelDetails = () => {
-  const { channelName } = useParams();
+  const { channelName } = useParams(); // Get channel name from URL
   const navigate = useNavigate();
-  const [shows, setShows] = useState({});
-  const [selectedShow, setSelectedShow] = useState(null); // Store selected show for modal
+
+  const [shows, setShows] = useState({}); // Store grouped shows
+  const [selectedShow, setSelectedShow] = useState(null); // Selected show for modal
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
-    fetch(TVMAZE_API_URL)
+    fetch(TVMAzeAPI)
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch data");
         return response.json();
       })
       .then((data) => {
+        // Filter for shows that belong to the selected channel
         const filteredShows = data.filter(
           (item) => item._embedded?.show?.network?.name === channelName
         );
 
+        // Group shows by their ID
         const groupedShows = {};
         filteredShows.forEach((item) => {
           const showId = item._embedded?.show?.id;
@@ -33,19 +36,25 @@ const ChannelDetails = () => {
             groupedShows[showId] = {
               id: showId,
               name: showName,
-              image:
-                item._embedded?.show?.image?.original ||
-                "https://via.placeholder.com/150",
+              // Assign image or fallback gradient
+              image: item._embedded?.show?.image?.original
+                ? `url(${item._embedded.show.image.original})`
+                : `linear-gradient(135deg, hsl(${
+                    Math.random() * 360
+                  }, 80%, 50%), hsl(${Math.random() * 360}, 80%, 60%))`,
               episodes: [],
             };
           }
 
-          groupedShows[showId].episodes.push({
-            episodeName: item.name || `Episode ${item.number}`,
-            airdate: item.airdate,
-            airtime: item.airtime,
-            summary: item.summary || "No description available.",
-          });
+          // Add valid episode information
+          if (item.name || item.number) {
+            groupedShows[showId].episodes.push({
+              episodeName: item.name || `Episode ${item.number}`,
+              airdate: item.airdate || "Unknown Date",
+              airtime: item.airtime || "Unknown Time",
+              summary: item.summary || "No description available.",
+            });
+          }
         });
 
         setShows(groupedShows);
@@ -53,7 +62,7 @@ const ChannelDetails = () => {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [channelName]);
+  }, [channelName]); // Runs when channelName changes
 
   if (loading) {
     return (
@@ -64,17 +73,15 @@ const ChannelDetails = () => {
   }
 
   if (error) {
-    return (
-      <div className="text-center mt-10 text-red-500">
-        Error fetching channel details: {error}
-      </div>
-    );
+    return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
   }
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <Header />
+
       <div className="max-w-6xl mx-auto p-6">
+        {/* Back button */}
         <button
           onClick={() => navigate(-1)}
           className="mb-4 text-blue-500 underline cursor-pointer"
@@ -82,8 +89,10 @@ const ChannelDetails = () => {
           ← Back
         </button>
 
+        {/* Channel Name */}
         <h1 className="text-3xl font-bold mb-6 text-center">{channelName}</h1>
 
+        {/* Show Grid or No Shows Message */}
         {Object.keys(shows).length === 0 ? (
           <p className="text-gray-500 text-center">
             No shows available for this channel.
@@ -93,16 +102,16 @@ const ChannelDetails = () => {
             {Object.values(shows).map((show) => (
               <div
                 key={show.id}
-                className="relative cursor-pointer rounded-lg overflow-hidden shadow-lg"
+                className="relative cursor-pointer rounded-lg shadow-lg overflow-hidden"
                 onClick={() => setSelectedShow(show)}
               >
-                {/* Background Image */}
+                {/* Background Image or Gradient */}
                 <div
                   className="h-72 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${show.image})` }}
+                  style={{ backgroundImage: show.image }}
                 ></div>
 
-                {/* Overlay Text */}
+                {/* Show Name Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4">
                   <h2 className="text-xl font-bold">{show.name}</h2>
                 </div>
@@ -111,20 +120,23 @@ const ChannelDetails = () => {
           </div>
         )}
 
-        {/* Modal for Show Details */}
+        {/* Show Details Modal */}
         {selectedShow && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-black border-2 border-violet-500 p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+              {/* Close Button */}
               <button
                 onClick={() => setSelectedShow(null)}
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-2xl"
+                className="absolute top-2 right-2  text-white px-3 py-1 hover:text-violet-500"
               >
-                &times;
+                <X />
               </button>
 
+              {/* Show Name */}
               <h2 className="text-2xl font-bold mb-4">{selectedShow.name}</h2>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              {/* Episode List */}
+              <div className="space-y-4 max-h-96 overflow-y-auto no-scrollbar">
                 {selectedShow.episodes.map((episode, index) => (
                   <div key={index} className="border-b pb-4">
                     <h3 className="text-lg font-semibold">

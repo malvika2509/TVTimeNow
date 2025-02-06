@@ -4,17 +4,23 @@ import { useNavigate } from "react-router-dom";
 
 const GPTSearchBar = ({ types }) => {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const navigate = useNavigate();
 
+  // Debouncing logic to reduce unnecessary navigations
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      if (query) {
-        navigate(`/suggested-shows?query=${encodeURIComponent(query)}`);
-      }
-    }, 1000); // Debounce input for 500ms
+      setDebouncedQuery(query.trim()); // Trim to remove unwanted spaces
+    }, 500); // Adjusted debounce to 500ms for better UX
 
     return () => clearTimeout(debounceTimer);
-  }, [query, navigate]);
+  }, [query]);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      navigate(`/suggested-shows?query=${encodeURIComponent(debouncedQuery)}`);
+    }
+  }, [debouncedQuery, navigate]);
 
   return (
     <div className="relative">
