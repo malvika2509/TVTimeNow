@@ -1,25 +1,26 @@
 import React from "react";
-import { Search } from "lucide-react";
+import GPTSearchBar from "./GPTSearchBar"; // ✅ Import GPT Search
+import { useNavigate } from "react-router-dom";
 
-function Header() {
+const Header = ({ types }) => {
+  const navigate = useNavigate();
+  const onHandleClick = () => {
+    navigate("/");
+  };
+
   return (
-    <div>
-      <header className="flex justify-between w-full  mb-8">
-        <div>
-          <h1 className="text-4xl font-extrabold">TVTimesNow</h1>
-        </div>
+    <header className="flex justify-between w-full mb-8">
+      <h1
+        className="text-4xl font-extrabold cursor-pointer"
+        onClick={onHandleClick}
+      >
+        TVTimesNow
+      </h1>
 
-        <div className="flex justify-between items-center gap-4">
-          <Search className="text-white" />
-          <input
-            type="text"
-            placeholder="Search shows..."
-            className="bg-gray-800 text-red p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
-          />
-        </div>
-      </header>
-    </div>
+      {/* ✅ GPT Search Bar with Debounce */}
+      <GPTSearchBar types={types} />
+    </header>
   );
-}
+};
 
 export default Header;

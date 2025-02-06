@@ -13,15 +13,18 @@ const ChannelDetails = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    setLoading(true);
     fetch(TVMAZE_API_URL)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch data");
+        return response.json();
+      })
       .then((data) => {
         const filteredShows = data.filter(
           (item) => item._embedded?.show?.network?.name === channelName
         );
 
         const groupedShows = {};
-
         filteredShows.forEach((item) => {
           const showId = item._embedded?.show?.id;
           const showName = item._embedded?.show?.name;
@@ -46,21 +49,31 @@ const ChannelDetails = () => {
         });
 
         setShows(groupedShows);
-        setLoading(false);
+        setError(null);
       })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, [channelName]);
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-  if (error)
-    return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="text-center mt-10 text-gray-400">
+        Loading channel details...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Error fetching channel details: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      <Header></Header>
+      <Header />
       <div className="max-w-6xl mx-auto p-6">
         <button
           onClick={() => navigate(-1)}
@@ -80,17 +93,17 @@ const ChannelDetails = () => {
             {Object.values(shows).map((show) => (
               <div
                 key={show.id}
-                className="relative cursor-pointer rounded-lg overflow-hidden shadow-lg "
+                className="relative cursor-pointer rounded-lg overflow-hidden shadow-lg"
                 onClick={() => setSelectedShow(show)}
               >
                 {/* Background Image */}
                 <div
-                  className="h-72 bg-cover bg-center "
+                  className="h-72 bg-cover bg-center"
                   style={{ backgroundImage: `url(${show.image})` }}
                 ></div>
 
                 {/* Overlay Text */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4 bg-gradient-to-b from-black">
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4">
                   <h2 className="text-xl font-bold">{show.name}</h2>
                 </div>
               </div>
@@ -111,18 +124,18 @@ const ChannelDetails = () => {
 
               <h2 className="text-2xl font-bold mb-4">{selectedShow.name}</h2>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto no-scrollbar">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
                 {selectedShow.episodes.map((episode, index) => (
                   <div key={index} className="border-b pb-4">
                     <h3 className="text-lg font-semibold">
                       {episode.episodeName}
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-white">
                       <strong>Airs on:</strong> {episode.airdate} at{" "}
                       {episode.airtime}
                     </p>
                     <p
-                      className="text-gray-800 mt-2"
+                      className="text-gray-500 mt-2"
                       dangerouslySetInnerHTML={{ __html: episode.summary }}
                     ></p>
                   </div>
